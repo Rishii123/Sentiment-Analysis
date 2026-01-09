@@ -1,0 +1,9 @@
+{
+    "nb_accuracy": 94.39999999999999,
+    "svm_accuracy": 94.89999999999999,
+    "lstm_accuracy": 95.1,
+    "ensemble_accuracy": 95.3,
+    "features": "combined_text_only",
+    "n_features": 5000,
+    "balanced_dataset": true
+}
