@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis - Radhe Radhe 🙏</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        label i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: bounce 0.5s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .result-sentiment {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .result-confidence {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .result-details {
+            margin-top: 25px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .detail-section h4 i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .probability-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .probability-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-label {
+            width: 90px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .bar-positive {
+            background: linear-gradient(90deg, #4CAF50, #66BB6A);
+        }
+
+        .bar-negative {
+            background: linear-gradient(90deg, #f44336, #EF5350);
+        }
+
+        .bar-neutral {
+            background: linear-gradient(90deg, #FF9800, #FFA726);
+        }
+
+        .model-votes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .vote-card {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .vote-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .vote-card h5 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .vote-card p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #c62828;
+            display: none;
+        }
+
+        .error i {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .result-emoji {
+                font-size: 3rem;
+            }
+
+            .result-sentiment {
+                font-size: 1.5rem;
+            }
+
+            .model-votes {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer i {
+            color: #e74c3c;
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-comments"></i> Sentiment Analyzer</h1>
+            <div class="info-badge">
+                <i class="fas fa-robot"></i> Powered by NB + SVM + LSTM
+            </div>
+        </div>
+
+        <div class="content">
+            <form id="predictionForm">
+                <div class="form-group">
+                    <label for="review_text">
+                        <i class="fas fa-comment-dots"></i> Review Text *
+                    </label>
+                    <textarea 
+                        id="review_text" 
+                        name="review_text"
+                        placeholder="Enter your text here"
+                        required
+                        maxlength="5000"
+                    ></textarea>
+                    <div class="char-count">
+                        <span id="charCount">0</span> / 5000 characters
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <i class="fas fa-search"></i> Analyze Sentiment
+                    </button>
+                    <button type="button" class="btn-secondary" id="clearBtn">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: #666;">Analyzing sentiment...</p>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div id="result"></div>
+        </div>
+
+        
+    </div>
+
+    <script>
+        // Character counter
+        const reviewText = document.getElementById('review_text');
+        const charCount = document.getElementById('charCount');
+
+        reviewText.addEventListener('input', () => {
+            charCount.textContent = reviewText.value.length;
+        });
+
+        // Clear button
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('predictionForm').reset();
+            charCount.textContent = '0';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        });
+
+        // Form submission
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            const formData = {
+                review_text: document.getElementById('review_text').value,
+                review_title: ""  // Empty string since we removed the title field
+            };
+
+            // Validate
+            if (!formData.review_text.trim()) {
+                showError('Please enter review text!');
+                return;
+            }
+
+            // Show loading
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResult(data);
+                } else {
+                    showError(data.error || 'An error occurred during prediction');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+                console.error('Prediction error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.style.backgroundColor = data.color + '15';
+            resultDiv.style.border = `3px solid ${data.color}`;
+            
+            resultDiv.innerHTML = `
+                <div class="result-header">
+                    <div class="result-emoji">${data.emoji}</div>
+                    <div class="result-sentiment" style="color: ${data.color}">
+                        ${data.sentiment}
+                    </div>
+                    <div class="result-confidence">
+                        Confidence: <strong>${data.confidence.toFixed(2)}%</strong>
+                    </div>
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-section">
+                        <h4><i class="fas fa-chart-bar"></i> Probability Distribution</h4>
+                        <div class="probability-bars">
+                            <div class="probability-bar">
+                                <span class="bar-label">😊 Positive</span>
+                                <div class="bar-container">
+                                    <div class="bar-fill bar-positive" style="width: 0%" data-width="${data.probabilities.positive}">
+                                        ${data.probabilities.positive.toFixed(1)}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="probability-bar">
+                                <span class="bar-label">😐 Neutral</span>
+                                <div class="bar-container">
+                                    <div class="bar-fill bar-neutral" style="width: 0%" data-width="${data.probabilities.neutral}">
+                                        ${data.probabilities.neutral.toFixed(1)}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="probability-bar">
+                                <span class="bar-label">😞 Negative</span>
+                                <div class="bar-container">
+                                    <div class="bar-fill bar-negative" style="width: 0%" data-width="${data.probabilities.negative}">
+                                        ${data.probabilities.negative.toFixed(1)}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4><i class="fas fa-robot"></i> Individual Model Predictions</h4>
+                        <div class="model-votes">
+                            <div class="vote-card">
+                                <h5>Naive Bayes</h5>
+                                <p>${data.individual_predictions.naive_bayes}</p>
+                            </div>
+                            <div class="vote-card">
+                                <h5>SVM</h5>
+                                <p>${data.individual_predictions.svm}</p>
+                            </div>
+                            <div class="vote-card">
+                                <h5>LSTM</h5>
+                                <p>${data.individual_predictions.neural_network}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultDiv.style.display = 'block';
+            
+            // Animate bars
+            setTimeout(() => {
+                document.querySelectorAll('.bar-fill').forEach(bar => {
+                    const width = bar.getAttribute('data-width');
+                    bar.style.width = width + '%';
+                });
+            }, 100);
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Error:</strong> ${message}
+            `;
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
